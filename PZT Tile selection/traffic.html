@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Pattern Analysis</title>
+    <link rel="stylesheet" href="styles.css">
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 60%;
+    margin: 50px auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+form {
+    margin-bottom: 20px;
+}
+
+label {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+    display: block;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    padding: 10px 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.message {
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.success {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.error {
+    background-color: #f44336;
+    color: white;
+}
+
+</style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Traffic Pattern Analysis - Upload Foot Traffic Data</h1>
+
+        <form id="trafficForm">
+            <div>
+                <label for="area">Campus Area:</label>
+                <input type="text" id="area" name="area" required placeholder="Enter Campus Area">
+            </div>
+            <div>
+                <label for="trafficData">Foot Traffic Data (daily, weekly, etc.):</label>
+                <textarea id="trafficData" name="trafficData" rows="5" placeholder="Enter foot traffic data here..."></textarea>
+            </div>
+            <div>
+                <label for="csvFile">Or Upload CSV File:</label>
+                <input type="file" id="csvFile" name="csvFile" accept=".csv">
+            </div>
+            <button type="submit">Submit Data</button>
+        </form>
+
+        <div id="message" class="message"></div>
+    </div>
+
+<script>
+document.getElementById('trafficForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const area = document.getElementById('area').value;
+    const trafficData = document.getElementById('trafficData').value;
+    const csvFile = document.getElementById('csvFile').files[0];
+
+    const formData = new FormData();
+    formData.append('area', area);
+    formData.append('trafficData', trafficData);
+
+    // If a file is uploaded, append the file to form data
+    if (csvFile) {
+        formData.append('csvFile', csvFile);
+    }
+
+    // Make a POST request to upload data
+    fetch('/pzt/foot_traffic', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Display success or error message based on response
+        if (data.success) {
+            displayMessage('Data uploaded successfully!', 'success');
+        } else {
+            displayMessage('Error uploading data. Please try again.', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        displayMessage('An error occurred. Please try again.', 'error');
+    });
+});
+
+// Function to display success or error message
+function displayMessage(message, type) {
+    const messageDiv = document.getElementById('message');
+    messageDiv.textContent = message;
+    messageDiv.className = `message ${type}`;
+}
+
+</script>
+</body>
+</html>

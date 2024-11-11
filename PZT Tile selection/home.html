@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tile Selection - PZT Tile Calculator</title>
+    <link rel="stylesheet" href="style.css">
+<style>
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+}
+
+.tile-selection-container {
+    width: 100%;
+    max-width: 1000px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 24px;
+}
+
+.tile-properties, .area-calculation {
+    margin-bottom: 30px;
+}
+
+h2 {
+    font-size: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid #ccc;
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+}
+
+th {
+    background-color: #0078d4;
+    color: white;
+}
+
+form {
+    display: grid;
+    gap: 10px;
+}
+
+form input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+form button {
+    padding: 12px;
+    background-color: #0078d4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #005a9e;
+}
+
+.results {
+    margin-top: 20px;
+}
+
+.results p {
+    font-size: 16px;
+    font-weight: bold;
+}
+</style>
+
+</head>
+<body>    <div class="tile-selection-container">
+        <header>
+            <h1>Tile Selection for PZT Installation</h1>
+        </header>
+
+        <!-- Tile Properties Display -->
+        <div class="tile-properties">
+            <h2>Available PZT Tiles</h2>
+            <table id="tile-list">
+                <thead>
+                    <tr>
+                        <th>Tile Size (m²)</th>
+                        <th>Power Generation (W/footstep)</th>
+                        <th>Cost per Tile</th>
+                    </tr>
+                </thead>
+                <tbody id="tiles"></tbody>
+            </table>
+        </div>
+
+        <!-- Area Calculation Form -->
+        <div class="area-calculation">
+            <h2>Area and Energy Calculation</h2>
+            <form id="area-form">
+                <div class="form-group">
+                    <label for="length">Length (m):</label>
+                    <input type="number" id="length" required />
+                </div>
+                <div class="form-group">
+                    <label for="width">Width (m):</label>
+                    <input type="number" id="width" required />
+                </div>
+                <div class="form-group">
+                    <label for="foot-traffic">Foot Traffic (footsteps/day):</label>
+                    <input type="number" id="foot-traffic" required />
+                </div>
+                <button type="submit">Calculate</button>
+            </form>
+
+            <!-- Results Display -->
+            <div id="calculation-results" class="results"></div>
+        </div>
+       <p>After submitting, go to the <a href="budget_1.html">Cost and budget calculation</a></p>
+    </div>
+
+<script>
+// Fetch available PZT tile properties
+async function fetchTiles() {
+    try {
+        const response = await fetch('http://localhost:5000/api/pzt/tiles');  // Replace with your API URL
+        const tiles = await response.json();
+
+        if (response.ok) {
+            displayTiles(tiles);
+        } else {
+            throw new Error(tiles.message || 'Failed to fetch tiles');
+        }
+    } catch (error) {
+        console.error('Error fetching tiles:', error);
+    }
+}
+
+// Display fetched tile properties
+function displayTiles(tiles) {
+    const tileList = document.getElementById('tiles');
+    tileList.innerHTML = '';  // Clear existing rows
+
+    tiles.forEach(tile => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${tile.size} m²</td>
+            <td>${tile.powerGeneration} W/footstep</td>
+            <td>$${tile.cost}</td>
+        `;
+        tileList.appendChild(row);
+    });
+}
+
+// Handle area and energy calculation
+document.getElementById('area-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const length = parseFloat(document.getElementById('length').value);
+    const width = parseFloat(document.getElementById('width').value);
+    const footTraffic = parseInt(document.getElementById('foot-traffic').value);
+
+    // Fetch selected tile properties (for simplicity, using the first tile as an example)
+    const tile = await fetchTileDetails(1);  // Assume tile with ID 1 is selected
+
+    // Call the API to calculate required tiles and energy
+    try {
+        const result = await calculateTiles(length, width, footTraffic, tile);
+        displayCalculationResults(result);
+    } catch (error) {
+        console.error('Error calculating tiles:', error);
+    }
+});
+
+// Function to fetch selected tile details (simulation)
+async function fetchTileDetails(tileId) {
+    // Here we simulate fetching tile details by ID. In a real implementation, this would be an API call.
+    return {
+        size: 1.0, // Tile size in m²
+        powerGeneration: 1.2, // Power per footstep in watts
+        cost: 20 // Cost per tile in USD
+    };
+}
+
+// Function to calculate the required number of tiles and energy
+async function calculateTiles(length, width, footTraffic, tile) {
+    // Calculate total area
+    const totalArea = length * width;
+
+    // Calculate number of tiles required based on tile size
+    const tilesRequired = Math.ceil(totalArea / tile.size);
+
+    // Estimate energy generation
+    const energyPerDay = tile.powerGeneration * footTraffic * tilesRequired; // Total watts per day
+    const energyPerMonth = energyPerDay * 30; // Total watts per month (assuming 30 days)
+
+    return {
+        totalArea: totalArea,
+        tilesRequired: tilesRequired,
+        dailyEnergy: energyPerDay.toFixed(2),  // Daily energy in watts
+        monthlyEnergy: energyPerMonth.toFixed(2)  // Monthly energy in watts
+    };
+}
+
+// Display the calculated results
+function displayCalculationResults(result) {
+    const resultsContainer = document.getElementById('calculation-results');
+    resultsContainer.innerHTML = `
+        <p>Total Area: ${result.totalArea} m²</p>
+        <p>Number of Tiles Required: ${result.tilesRequired}</p>
+        <p>Estimated Daily Energy Generation: ${result.dailyEnergy} W</p>
+        <p>Estimated Monthly Energy Generation: ${result.monthlyEnergy} W</p>
+    `;
+}
+
+// Initialize the page by fetching tile data
+fetchTiles();
+
+</script>
+</body>
+</body>
+</html>

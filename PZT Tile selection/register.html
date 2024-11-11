@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - PZT Tile Calculator</title>
+    <link rel="stylesheet" href="style.css">
+<style>
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+}
+
+.register-container {
+    width: 100%;
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+header h1 {
+    font-size: 24px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: #0078d4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #005a9e;
+}
+
+.error-message {
+    color: red;
+    text-align: center;
+    margin-top: 10px;
+}
+
+a {
+    color: #0078d4;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+</style>
+</head>
+<body>
+    <div class="register-container">
+        <header>
+            <h1>Register for PZT Tile Calculator</h1>
+        </header>
+
+        <form id="register-form">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="Enter your email" required />
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required />
+            </div>
+            <div class="form-group">
+                <label for="role">Role</label>
+                <select id="role" required>
+                    <option value="facility_manager">Facility Manager</option>
+                    <option value="campus_planner">Campus Planner</option>
+                </select>
+            </div>
+            <button type="submit"><a href="home.html">Register</a></button>
+        </form>
+
+        <div class="error-message" id="error-message"></div>
+
+        <p>Already have an account? <a href="login.html">Login here</a></p>
+    </div>
+<script>
+// Handle the registration form submission
+document.getElementById('register-form').addEventListener('submit', async function(e) {
+    e.preventDefault(); // Prevent the form from submitting normally
+
+    // Get the form values
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const role = document.getElementById('role').value;
+
+    // Call the register API function
+    try {
+        const result = await registerUser(email, password, role);
+        if (result.message === "User created successfully") {
+            // Redirect to the login page after successful registration
+            window.location.href = 'login.html';
+        }
+    } catch (error) {
+        // Display error message if registration fails
+        document.getElementById('error-message').textContent = 'Registration failed. Please try again.';
+    }
+});
+
+// Function to call the register API
+async function registerUser(email, password, role) {
+    const response = await fetch('http://localhost:5000/api/users/register', {  // Replace with your API URL
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            email: sahithiyeturi@gmail.com,
+            password: password,
+            role: campus planner
+        })
+    });
+
+    const data = await response.json();
+    
+    if (response.ok) {
+        return data; // Return the success message if registration is successful
+    } else {
+        throw new Error(data.message || 'Something went wrong');
+    }
+}
+</script>
+    
+</body>
+</html>

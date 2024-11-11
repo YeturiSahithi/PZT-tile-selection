@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tile Cost Estimation</title>
+    <link rel="stylesheet" href="styles.css">
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 60%;
+    margin: 50px auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+}
+
+form {
+    margin-bottom: 20px;
+}
+
+label {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    padding: 10px 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: "blue";
+}
+
+.result {
+    display: none;
+    margin-top: 30px;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.result p {
+    font-size: 1.2rem;
+}
+
+</style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Tile Installation Cost Estimator</h1>
+
+        <form id="costForm">
+            <label for="tile_id">Tile ID:</label>
+            <input type="text" id="tile_id" name="tile_id" required><br><br>
+
+            <label for="area">Area (sqm):</label>
+            <input type="number" id="area" name="area" required><br><br>
+
+            <label for="tile_area">Tile Area (sqm):</label>
+            <input type="number" id="tile_area" name="tile_area" required><br><br>
+
+            <label for="cost_per_tile">Cost per Tile (₹):</label>
+            <input type="number" id="cost_per_tile" name="cost_per_tile" required><br><br>
+
+            <label for="energy_savings">Energy Savings per Tile (W):</label>
+            <input type="number" id="energy_savings" name="energy_savings" required><br><br>
+
+            <button type="submit">Calculate Cost</button>
+        </form>
+
+        <div id="result" class="result" style="display: none;">
+            <h2>Cost Details</h2>
+            <p>Number of Tiles: <span id="numTiles"></span></p>
+            <p>Cost per Tile: ₹<span id="costPerTile"></span></p>
+            <p>Total Cost: ₹<span id="totalCost"></span></p>
+            <p>Energy Savings per Tile: <span id="energySavings"></span> W</p>
+            <p>Total Energy Savings: <span id="totalEnergySavings"></span> W</p>
+        </div>
+        <p>After submitting, go to the <a href="traffic.html">Traffic pattern analysis</a></p>
+    </div>
+<script>
+document.getElementById('costForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const tile_id = document.getElementById('tile_id').value;
+    const area = parseFloat(document.getElementById('area').value);
+    const tileArea = parseFloat(document.getElementById('tile_area').value);
+    const costPerTile = parseFloat(document.getElementById('cost_per_tile').value);
+    const energySavings = parseFloat(document.getElementById('energy_savings').value);
+
+    // Calculate the number of tiles required
+    const numTiles = Math.ceil(area / tileArea);
+
+    // Calculate the total cost based on the number of tiles and cost per tile
+    const totalCost = numTiles * costPerTile;
+
+    // Calculate the total energy savings
+    const totalEnergySavings = numTiles * energySavings;
+
+    // Display the results
+    document.getElementById('numTiles').textContent = numTiles;
+    document.getElementById('costPerTile').textContent = costPerTile.toFixed(2);
+    document.getElementById('totalCost').textContent = totalCost.toFixed(2);
+    document.getElementById('energySavings').textContent = energySavings.toFixed(2);
+    document.getElementById('totalEnergySavings').textContent = totalEnergySavings.toFixed(2);
+
+    // Show the result section
+    document.getElementById('result').style.display = 'block';
+});
+
+</script>
+</body>
+</html>
